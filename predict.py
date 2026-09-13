@@ -59,11 +59,12 @@ model = smp.DeepLabV3Plus(
     classes=1
 )
 
-checkpoint = torch.load("models/DeepLabV3+(Res50-bin-NWRD).pth.tar", map_location="cpu", weights_only=False)
+checkpoint = torch.load("models/DeepLabV3+(Res50-Bin-NWRD).pth.tar", map_location="cpu", weights_only=False)
 load_checkpoint(checkpoint, model=model)
 
 image_path = "patchedData/test/images/25_1_6.JPG"
 mask_path = "patchedData/test/masks/25_1_6.png"
+
 
 transform = A.Compose([
     A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
@@ -71,25 +72,28 @@ transform = A.Compose([
 ])
 
 image = pad_to_multiple_of_32(np.array(Image.open(image_path).convert("RGB")))
-mask = pad_to_multiple_of_32(np.array(Image.open(mask_path).convert("L"))).astype(np.float32)
-mask[mask > 1.0] = 1.0
+mask = pad_to_multiple_of_32(np.array(Image.open(mask_path).convert("L")))
+
+mask = (mask / 255.0).astype(np.float32)
+mask = (mask > 0.5).astype(np.float32)
+
 
 augmented = transform(image=image, mask=mask)
 image_tensor = augmented["image"]
+true_mask_tensor = augmented["mask"] 
+
 
 model.eval()
 with torch.no_grad():
     pred = torch.sigmoid(model(image_tensor.unsqueeze(0)))
-model.train()
 
 predicted_mask = (pred > 0.5).float()
-true_mask_tensor = torch.tensor(mask, dtype=torch.float32)
 
 iou_score = compute_iou(pred, true_mask_tensor)
 print(f"IoU: {iou_score:.4f}")
 
 img_np = image_tensor.permute(1, 2, 0).cpu().numpy()
-mask_np = mask
+mask_np = true_mask_tensor.cpu().numpy()
 pred_np = predicted_mask.squeeze().cpu().numpy()
 
 model.to("cpu")
@@ -97,7 +101,8 @@ target_layer = model.encoder.layer4[-1]
 input_tensor = image_tensor.unsqueeze(0)
 
 H, W = image_tensor.shape[1:]
-cam_mask = np.ones((H, W), dtype=np.float32)
+
+cam_mask = pred_np 
 target_category = [SemanticSegmentationTarget(category=0, mask=cam_mask)]
 
 cam = GradCAM(model=model, target_layers=[target_layer])
@@ -131,7 +136,7 @@ plt.axis('off')
 
 plt.subplot(2, 2, 4)
 plt.imshow(visualization)
-plt.title("Grad-CAM++")
+plt.title("Grad-CAM") 
 plt.axis('off')
 
 plt.tight_layout()
