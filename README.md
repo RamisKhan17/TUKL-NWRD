@@ -1,6 +1,6 @@
 # NWRD — Rust Segmentation with DeepLabV3+
 
-Binary semantic segmentation of **rust** vs **non-rust** regions on the **NWRD** (NUST Wheat Rust Dataset) dataset using a **DeepLabV3+ (ResNet-50)** encoder-decoder architecture.
+Binary semantic segmentation of **rust** vs **non-rust** regions on the **NWRD** (NUST Wheat Rust Disease) dataset using a **DeepLabV3+ (ResNet-50)** encoder-decoder architecture.
 
 ---
 
