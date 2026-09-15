@@ -117,13 +117,22 @@ Loads the trained checkpoint from `models/DeepLabV3+(Res50-bin-NWRD).pth.tar`, r
 
 ---
 
-## Metrics
+## Results & Metrics
 
-Evaluation metrics reported during inference:
+The best results were achieved by the DeepLabV3+ model with a ResNet-50 encoder.
 
-- **Pixel Accuracy** — fraction of correctly classified pixels
-- **Dice Score** — harmonic mean of precision & recall over the positive class
-- **IoU (Jaccard Index)** — intersection over union for the rust class
+### Quantitative Results
+
+| Metric                          | Score      | Description                                                        |
+| :------------------------------ | :--------- | :----------------------------------------------------------------- |
+| **F1 Score (Dice Coefficient)** | **0.5797** | Measure of spatial overlap & harmonic mean of precision and recall |
+| **IoU (Jaccard Index)**         | **0.4082** | Intersection over Union for predicted rust regions                 |
+
+---
+
+### Validation Trajectory
+
+![Validation F1 Score](results/val_f1_score.png)
 
 ---
 
